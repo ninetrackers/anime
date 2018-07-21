@@ -51,7 +51,7 @@ cat dl_links | while read line; do
 	anime=$(echo $line | cut -d = -f1 | cut -d _ -f1)
 	ep=$(echo $line | cut -d _ -f2 | cut -d = -f1)
 	link=$(echo $line | cut -d = -f2)
-	./telegram -t @BOTTOKEN -c @NineAnimeTracker -M "New episode available!
+	./telegram -t $BOTTOKEN -c @NineAnimeTracker -M "New episode available!
 	*Anime*: $anime
 	*Episode*: $ep
 	*Download Link*: [Here]($link)"
