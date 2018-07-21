@@ -50,7 +50,7 @@ fi
 cat dl_links | while read line; do
 	anime=$(echo $line | cut -d = -f1 | cut -d _ -f1)
 	link=$(echo $line | cut -d = -f2)
-	size=$(wget --spider $link --server-response -O - 2>&1 | grep 'Length:' | cut -d '(' -f2 | cut -d ')' -f1)
+	size=$(wget --spider $link  --server-response -O - 2>&1 | sed -ne '/Length:/{s/*. //;p}' | tail -1 | cut -d ' ' -f3)
 	./telegram -t $BOTTOKEN -c @NineAnimeTracker -M "New episode available!
 	*Anime*: $anime
 	*Size*: $size
