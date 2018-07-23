@@ -13,8 +13,9 @@ fi
 echo Fetching updates:
 cat animes | while read url; do
 	info=`curl -s $url | grep 'itemprop="item" href="https://anidl.tk/category' | tr '>' '\n' | grep 'alt=' | cut -d '"' -f6 | sed 's/&#8211;/-/g'`
-	url=`curl -s $url | tr '>' '\n' | grep '720p' | cut -d '"' -f2 | head -1`
-	echo $info"="$url >> raw_out
+	HD=`curl -s $url | tr '>' '\n' | grep '720p' | grep -Eo "(http|https)://[a-zA-Z0-9./?=_-]*" | head -1`
+	SD=`curl -s $url | tr '>' '\n' | grep '480p' | grep -Eo "(http|https)://[a-zA-Z0-9./?=_-]*" | head -1`
+	echo $info"="$HD $SD >> raw_out
 done
 cat raw_out | sort | cut -d = -f1 > anime_db
 
@@ -49,12 +50,18 @@ fi
 #Telegram
 cat dl_links | while read line; do
 	anime=$(echo $line | cut -d = -f1 | cut -d _ -f1)
-	link=$(echo $line | cut -d = -f2)
-	size=$(wget --spider $link  --server-response -O - 2>&1 | sed -ne '/Length:/{s/*. //;p}' | tail -1 | cut -d ' ' -f3)
+	HD_link=$(echo $line | cut -d = -f2 | cut -d ' ' -f1)
+	HD_size=$(wget --spider $HD_link  --server-response -O - 2>&1 | sed -ne '/Length:/{s/*. //;p}' | tail -1 | cut -d ' ' -f3)
+	SD_link=$(echo $line | cut -d = -f2 | cut -d ' ' -f2)
+	SD_size=$(wget --spider $SD_link  --server-response -O - 2>&1 | sed -ne '/Length:/{s/*. //;p}' | tail -1 | cut -d ' ' -f3)
 	./telegram -t $BOTTOKEN -c @NineAnimeTracker -M "New episode available!
 	*Anime*: $anime
-	*Size*: $size
-	*Download Link*: [Here]($link)"
+	*720P*:
+	*Download Link*: [Here]($HD_link)
+	*Size*: $HD_size
+	*480P*:
+	*Download Link*: [Here]($SD_link)
+	*Size*: $SD_size "
 done
 
 #Push
