@@ -12,9 +12,18 @@ fi
 #Fetch
 echo Fetching updates:
 cat animes | while read anime; do
-	url=`wget -qO- $anime | cat | grep ZS | tail -1 | cut -d '"' -f4`
-	info=`curl -s $url | grep ".mkv" | head -1 | cut -d _ -f 2,3`
-	echo $info"="$url >> raw_out
+	HD=`wget -qO- $anime | cat | grep '<p>720p ' | tail -1`
+	GD_HD=$(echo $HD | cut -d '"' -f2)
+	ZS_HD=$(echo $HD | cut -d '"' -f4)
+	MR_HD=$(echo $HD | cut -d '"' -f6)
+	Size_HD=$(echo $HD | grep -Po '[0-9]* MB')
+	info=`curl -s $ZS_HD | grep ".mkv" | head -1 | cut -d _ -f 2,3`
+	SD=`wget -qO- $anime | cat | grep '<p>480p ' | tail -1`
+	GD_SD=$(echo $SD | cut -d '"' -f2)
+	ZS_SD=$(echo $SD | cut -d '"' -f4)
+	MR_SD=$(echo $SD | cut -d '"' -f6)
+	Size_SD=$(echo $SD | grep -Po '[0-9]* MB')
+	echo $info"="\"$GD_HD\" \"$ZS_HD\" \"$MR_HD\" \"$Size_HD\" \"$GD_SD\" \"$ZS_SD\" \"$MR_SD\" \"$Size_SD\">> raw_out
 done
 cat raw_out | sort | cut -d = -f1 | sed 's/-/_/g' > anime_db
 
@@ -49,12 +58,24 @@ fi
 #Telegram
 cat dl_links | while read line; do
 	anime=$(echo $line | cut -d = -f1 | cut -d _ -f1)
-	ep=$(echo $line | cut -d _ -f2 | cut -d = -f1)
-	link=$(echo $line | cut -d = -f2)
+	ep=$(echo $line | cut -d = -f1 | cut -d _ -f2)
+	GD_HD=$(echo $line | cut -d '"' -f2)
+	ZS_HD=$(echo $line | cut -d '"' -f4)
+	MR_HD=$(echo $line | cut -d '"' -f6)
+	size_HD=$(echo $line | cut -d '"' -f8)
+	GD_SD=$(echo $line | cut -d '"' -f10)
+	ZS_SD=$(echo $line | cut -d '"' -f12)
+	MR_SD=$(echo $line | cut -d '"' -f14)
+	size_SD=$(echo $line | cut -d '"' -f16)
 	./telegram -t $BOTTOKEN -c @NineAnimeTracker -M "New episode available!
 	*Anime*: $anime
 	*Episode*: $ep
-	*Download Link*: [Here]($link)"
+	*720P*:
+	*Download Link*: [GD]($GD_HD) | [ZS]($ZS_HD) | [MR]($MR_HD)
+	*Size*: $size_HD
+	*480P*:
+	*Download Link*: [GD]($GD_SD) | [ZS]($ZS_SD) | [MR]($MR_SD)
+	*Size*: $size_SD"
 done
 
 #Push
