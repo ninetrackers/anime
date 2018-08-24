@@ -81,5 +81,5 @@ cat dl_links | while read line; do
 done
 
 #Push
-git add anime_db; git -c "user.name=$gituser" -c "user.email=$gitmail" commit -m "Sync: $(date +%d.%m.%Y)"
+git add anime_db; git -c "user.name=$GITUSER" -c "user.email=$GITMAIL" commit -m "Sync: $(date +%d.%m.%Y)"
 git push -q https://$GITUSER:$GITPASS@gitlab.com/yshalsager/myanimetracker.git HEAD:daizurin
