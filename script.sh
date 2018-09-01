@@ -12,7 +12,7 @@ fi
 #Fetch
 echo Fetching updates:
 cat animes | while read url; do
-	info=`curl -s $url | grep 'itemprop="item" href="https://anidl.tk/category' | tr '>' '\n' | grep 'alt=' | cut -d '"' -f6 | sed 's/&#8211;/-/g'`
+	info=`curl -s $url | grep 'itemprop="item" href="https://anidl' | tr '>' '\n' | grep 'alt=' | cut -d '"' -f6 | sed 's/&#8211;/-/g'`
 	HD=`curl -s $url | tr '>' '\n' | grep '720p' | grep -Eo "(http|https)://[a-zA-Z0-9./?=_-]*" | head -1`
 	SD=`curl -s $url | tr '>' '\n' | grep '480p' | grep -Eo "(http|https)://[a-zA-Z0-9./?=_-]*" | head -1`
 	echo $info"="$HD $SD >> raw_out
